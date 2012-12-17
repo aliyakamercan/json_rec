@@ -21,37 +21,31 @@
 
 %% the three functions required export
 -export([
-         new/1
+    field_type/2
         ]).
 
 %% define your record(s) that this module will work with
--record(example, {
+-record(simple, {
           foo = 1,
           bar = 2
          }).
 
--record(fizzbuzz, {
-          answer = 42
+-record(deep, {
+        answer = 42 :: integer(),
+        single_simple :: #simple{},
+        list_simple :: [#simple{}]
          }).
 
 %% make these records accessible via exprecs. This is necessary in
 %% order to let json_rec move from json to #rec{} and back again for
 %% you
 -compile({parse_transform, exprecs}).
--export_records([example, fizzbuzz]).
+-export_records([simple, deep]).
 
+%% this function is used to process deep nested records,
+%% if field holds a record return that record,
+%% if it holds a lists or records return that record inside a list
 
-
-%% when json_rec is recursing down json and encounters a dict,
-%% {struct, <<"name">>, []}, it will try to determine if that is a
-%% defined record. json_rec will call new(<<"name">>) and use that
-%% with exprecs magic to fill in the record.
-%%
-%% if you do not want to deal with json_rec do new(_) -> undefined.
-new(<<"example">>) ->
-    '#new-example'();
-
-new(<<"fizzbuzz">>) ->
-    '#new-fizzbuzz'();
-
-new(_) -> undefined.
+field_type(single_simple, #deep{}) -> #simple{};
+field_type(list_simple, #deep{}) -> [#simple{}];
+field_type(_,_) -> undefined.
