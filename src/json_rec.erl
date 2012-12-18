@@ -35,11 +35,11 @@
         ]).
 
 to_json(Record, Module) ->
-    jsx:encode(to_json1(Record, Module)).
+    jiffy:encode(to_json1(Record, Module)).
 
 to_json1(Record, Module) ->
     Fields = Module:'#info-'(element(1, Record)),
-    to_json1(Fields, Module, Record, []).
+    {to_json1(Fields, Module, Record, [])}.
 
 to_json1([], _Module, _Record, Acc) ->
     Acc;
@@ -62,20 +62,22 @@ to_json1([Field | Rest], Module, Record, Acc) ->
             to_json1(Rest, Module, Record, [Property | Acc])
     end.
             
-check_val(true) -> true;
-check_val(false) -> false;
-check_val(null) -> null;
 check_val(undefiend) -> null;
 check_val(Val) when is_atom(Val) -> atom_to_binary(Val, utf8);
 check_val(Val) -> Val.
 
 to_rec(Json, Module, RecName) ->
-    Pl = jsx:decode(Json, [{labels, atom}]),
+    Pl = jiffy:decode(Json),
     Record = Module:'#new-'(RecName),
     to_rec1(Pl, Module, Record).
 
 to_rec1(Pl, Module, Record) ->
-    F = fun({Key, Value}) ->
+    {Pl1} = Pl,
+    F = fun({K, V}) ->
+            {binary_to_atom(K, utf8), V}
+    end,
+    Pl2 = lists:map(F, Pl1),
+    F1 = fun({Key, Value}) ->
             case Module:field_type(Key, Record) of
                 undefined ->
                     {Key, Value};
@@ -89,4 +91,4 @@ to_rec1(Pl, Module, Record) ->
                     {Key, to_rec1(Value, Module, SubRecord)}
             end
     end,
-    Module:'#fromlist-'(lists:map(F, Pl), Record).
+    Module:'#fromlist-'(lists:map(F1, Pl2), Record).

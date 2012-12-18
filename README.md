@@ -1,7 +1,7 @@
 Making erlang record <~> json conversion easy.
 --
 
-A glue between [jsx](https://github.com/talentdeficit/jsx) and [exprecs](git@github.com:uwiger/parse_trans.git). This is a modified (using jsx instead of mochijson2) version of [json_rec](https://github.com/justinkirby/json_rec) which is explained in detail [here](http://blogs.openaether.org/?p=253 "exprecs, making json usable").
+A glue between [jiffy](https://github.com/davisp/jiffy) and [exprecs](git@github.com:uwiger/parse_trans.git). This is a modified (using jiffy instead of mochijson2) version of [json_rec](https://github.com/justinkirby/json_rec) which is explained in detail [here](http://blogs.openaether.org/?p=253 "exprecs, making json usable").
 
 Quick example:
 --
@@ -48,10 +48,3 @@ Or:
     Json = <<"{\"list_simple\":[{\"bar\":2,\"foo\":5},{\"bar\":2,\"foo\":1}],\"single_simple\":{\"bar\":2,\"foo\":1},\"answer\":42}">>.
     12> json_rec:to_rec(Json, json_rec_model_example, deep).
     > {deep,42,{simple,1,2},[{simple,5,2},{simple,1,2}]}
-
-###Todo
-
-1) Enable passing a list of modules like in original json_rec.
-
-2) Modify exprecs to add a field_type function
-
